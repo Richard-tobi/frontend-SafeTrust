@@ -1,6 +1,6 @@
 import type { ApartmentListing } from "@/types/hotel";
 
-export const APaRTMENT_LISTINGS: ApartmentListing[] = [
+export const APARTMENT_LISTINGS: ApartmentListing[] = [
   {
     id: "1",
     name: "Casa Níspero, Barrio Escalante",
