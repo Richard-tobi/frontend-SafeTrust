@@ -194,7 +194,9 @@ export function WhereSection({ draft, onChange, listings, onSearch }: SearchSect
                 >
                   <span>{s.label}</span>
                   {"count" in s && (
-                    <span className="text-muted-foreground">{s.count} places</span>
+                    <span className="text-muted-foreground">
+                      {s.count} {s.count === 1 ? "stay" : "stays"}
+                    </span>
                   )}
                 </li>
               ))
