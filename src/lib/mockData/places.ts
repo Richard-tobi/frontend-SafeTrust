@@ -1,8 +1,8 @@
 import type { Place } from "@/types/destination";
 
 export const DEMO_PLACES: Place[] = [
-  { id: "barrio-escalante", name: "Barrio Escalante", province: "San Jósé" },
-  { id: "los-yoses", name: "Los Yoses", province: "San Jósé" },
+  { id: "barrio-escalante", name: "Barrio Escalante", province: "San José" },
+  { id: "los-yoses", name: "Los Yoses", province: "San José" },
   { id: "paseo-colon", name: "Paseo Colón", province: "San José" },
   { id: "mercedes", name: "Mercedes", province: "Heredia" },
   { id: "heredia-centro", name: "Heredia Centro", province: "Heredia" },
