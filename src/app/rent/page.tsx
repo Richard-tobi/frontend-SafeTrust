@@ -8,7 +8,7 @@ import HotelHeader from "@/components/listings/HotelHeader";
 import { DestinationCarousel } from "@/components/listings/destinations/DestinationCarousel";
 import { CategoryFilterRow } from "@/components/listings/destinations/CategoryFilterRow";
 import {
-  APYARTMENT_CATEGORIES,
+  APARTMENT_CATEGORIES,
   APARTMENT_LISTINGS,
 } from "@/lib/mockData/apartmentListings";
 import { STUB_DESTINATIONS } from "@/lib/mockData/destinations";
