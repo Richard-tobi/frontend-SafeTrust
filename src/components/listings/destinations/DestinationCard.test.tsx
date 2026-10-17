@@ -34,7 +34,7 @@ it("shows the destination, zero count and selected state, and selects the object
       onSelect={select}
     />,
   );
-  const button = screen.getBryRole("button", {
+  const button = screen.getByRole("button", {
     name: /Heredia, University town, coffee hills, 0 places/,
   });
   expect(button).toHaveAttribute("aria-pressed", "true");
