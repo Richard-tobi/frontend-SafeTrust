@@ -1,5 +1,6 @@
 import type { Place } from "@/types/destination";
 
+
 export const DEMO_PLACES: Place[] = [
   { id: "barrio-escalante", name: "Barrio Escalante", province: "San José" },
   { id: "los-yoses", name: "Los Yoses", province: "San José" },
@@ -15,18 +16,3 @@ export const DEMO_PLACES: Place[] = [
   { id: "barrio-roosevelt", name: "Barrio Roosevelt", province: "Limón" },
 ];
 
-export function getPlaceById(id: string) {
-  return DEMO_PLACES.find((place) => place.id === id);
-}
-
-export function getPlacesByProvince(province: Place["province"]) {
-  return DEMO_PLACES.filter((place) => place.province === province);
-}
-
-export function getPlaceByProvinceAndId(province: Place["province"], id: string) {
-  return DEMO_PLACES.find((place) => place.province === province && place.id === id);
-}
-
-export function isValidPlaceForProvince(province: Place["province"], id: string) {
-  return getPlaceByProvinceAndId(province, id) !== undefined;
-}

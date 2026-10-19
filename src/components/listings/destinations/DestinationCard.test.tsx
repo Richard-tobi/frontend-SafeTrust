@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ImgHTMLAttributes } from "react";
 import { DestinationCard } from "./DestinationCard";
 import type { Destination } from "@/types/destination";
 
@@ -7,9 +8,9 @@ jest.mock("next/image", () => {
     src,
     alt,
     onError,
-  }: React.HTMLAttributes<HTMLImageElement>) {
+  }: ImgHTMLAttributes<HTMLImageElement>) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={src as string} alt={alt} onError={onError} />;
+    return <img src={src} alt={alt} onError={onError} />;
   }
   return { __esModule: true, default: Image };
 });

@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { useApartmentListings } from "@/hooks/useApartmentListings";
+import { DEMO_PLACES } from "@/lib/mockData/places";
 import type { ApartmentListing } from "@/types/hotel";
 
 /** One place there is something to book, and how much. */
@@ -38,13 +39,21 @@ function destinationsFromListings(
 }
 
 /**
+ * Build the `/rent` URL for a province, clearing any `place` that belongs to
+ * a different province so an incompatible selection cannot survive the change.
+ */
+function provinceHref(location: string): string {
+  const params = new URLSearchParams();
+  params.set("location", location);
+  return `/rent?${params.toString()}`;
+}
+
+/**
  * A horizontally scrollable strip of the destinations that currently have
  * listings, each linking into the public browsing page.
  */
 export default function DestinationCarousel() {
   const listings = useApartmentListings();
-  const searchParams = useSearchParams();
-  const activeLocation = searchParams.get("location");
   const destinations = destinationsFromListings(listings);
 
   if (destinations.length === 0) return null;
@@ -61,11 +70,7 @@ export default function DestinationCarousel() {
         {destinations.map(({ location, listings }) => (
           <li key={location} className="w-56 shrink-0 snap-start">
             <Link
-              href={
-                activeLocation === location
-                  ? `/rent?location=${encodeURIComponent(location)}`
-                  : `/rent?location=${encodeURIComponent(location)}`
-              }
+              href={provinceHref(location)}
               className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <Card className="h-full transition-colors hover:bg-accent">

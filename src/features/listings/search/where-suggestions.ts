@@ -1,32 +1,47 @@
-import type { ApartmentListing, Location } from "@/types/hotel";
+import type { ApartmentListing } from "@/types/hotel";
+import type { Location } from "@/types/destination";
 import type { Place } from "@/types/destination";
-import { normalizeSearchText } from "@/lib/text";
 import { DEMO_PLACES } from "@/lib/mockData/places";
-import { STUB_DESTINATIONS } from "@/lib/mockData/destinations";
+import { normalizeSearchText } from "@/lib/text";
 
 export type WhereSuggestion =
   | { kind: "province"; location: Location; label: string; count: number }
   | { kind: "place"; place: Place; label: string; count: number }
   | { kind: "listing"; id: string; label: string };
 
-const MAX_RESULTS = 8;
+const MAX_SUGGESTIONS = 8;
 
-function countByProvince(listings: ApartmentListing[], province: Location): number {
-  return listings.filter((l) => l.location === province).length;
+const PROVINCES: Location[] = [
+  "San José",
+  "Alajuela",
+  "Cartago",
+  "Heredia",
+  "Guanacaste",
+  "Puntarenas",
+  "Limón",
+];
+
+function matchRank(needle: string, values: string[]): number | null {
+  if (!needle) return 0;
+  let best: number | null = null;
+  for (const raw of values) {
+    const value = normalizeSearchText(raw);
+    if (!value) continue;
+    if (value.startsWith(needle)) {
+      if (best === null || best > 1) best = 1;
+    } else if (value.includes(needle)) {
+      if (best === null) best = 2;
+    }
+  }
+  return best;
 }
 
-function countByPlace(listings: ApartmentListing[], placeId: string): number {
-  return listings.filter((l) => l.placeId === placeId).length;
+function countForProvince(location: Location, listings: ApartmentListing[]): number {
+  return listings.filter((l) => l.location === location).length;
 }
 
-function matches(haystack: string, needle: string): boolean {
-  if (!needle) return true;
-  return haystack.includes(needle);
-}
-
-function prefixMatch(haystack: string, needle: string): boolean {
-  if (!needle) return false;
-  return haystack.startsWith(needle);
+function countForPlace(place: Place, listings: ApartmentListing[]): number {
+  return listings.filter((l) => l.placeId === place.id).length;
 }
 
 export function whereSuggestions(
@@ -35,56 +50,53 @@ export function whereSuggestions(
 ): WhereSuggestion[] {
   const needle = normalizeSearchText(text);
 
-  const provinceSuggestions: WhereSuggestion[] = STUB_DESTINATIONS
-    .map((d) => ({
-      kind: "province" as const,
-      location: d.location,
-      label: d.name,
-      count: countByProvince(listings, d.location),
-    }))
-    .filter((s) => matches(normalizeSearchText(s.label), needle));
+  const provinceResults: Array<{
+    rank: number;
+    suggestion: WhereSuggestion;
+  }> = [];
+  for (const location of PROVINCES) {
+    const rank = matchRank(needle, [location]);
+    if (rank === null) continue;
+    const count = countForProvince(location, listings);
+    if (count === 0) continue;
+    provinceResults.push({
+      rank,
+      suggestion: { kind: "province", location, label: location, count },
+    });
+  }
+  provinceResults.sort((a, b) => a.rank - b.rank);
 
-  const placeSuggestions: WhereSuggestion[] = DEMO_PLACES
-    .map((p) => {
-      const haystacks = [p.name, ...(p.aliases ?? [])].map(normalizeSearchText);
-      return {
-        kind: "place" as const,
-        place: p,
-        label: p.name,
-        count: countByPlace(listings, p.id),
-        haystacks,
-      };
-    })
-    .filter((s) => s.haystacks.some((h) => matches(h, needle)))
-    .map(({ haystacks, ...suggestion }) => suggestion);
+  const placeResults: Array<{
+    rank: number;
+    suggestion: WhereSuggestion;
+  }> = [];
+  for (const place of DEMO_PLACES) {
+    const rank = matchRank(needle, [place.name, ...(place.aliases ?? [])]);
+    if (rank === null) continue;
+    const count = countForPlace(place, listings);
+    if (count === 0) continue;
+    placeResults.push({
+      rank,
+      suggestion: { kind: "place", place, label: place.name, count },
+    });
+  }
+  placeResults.sort((a, b) => a.rank - b.rank);
 
-  const listingSuggestions: WhereSuggestion[] = needle
-    ? listings
-        .map((l) => ({
-          kind: "listing" as const,
-          id: l.id,
-          label: l.name,
-          haystack: normalizeSearchText(l.name),
-        }))
-        .filter((s) => matches(s.haystack, needle))
-        .map(({ haystack, ...suggestion }) => suggestion)
-    : [];
+  const listingResults: Array<{
+    rank: number;
+    suggestion: WhereSuggestion;
+  }> = [];
+  for (const listing of listings) {
+    const rank = matchRank(needle, [listing.name]);
+    if (rank === null) continue;
+    listingResults.push({
+      rank,
+      suggestion: { kind: "listing", id: listing.id, label: listing.name },
+    });
+  }
+  listingResults.sort((a, b) => a.rank - b.rank);
 
-  const rank = (s: WhereSuggestion): number => {
-    if (!needle) return 0;
-    const label = normalizeSearchText(s.label);
-    return prefixMatch(label, needle) ? 0 : 1;
-  };
-
-  const order: WhereSuggestion[] = [
-    ...provinceSuggestions,
-    ...placeSuggestions,
-    ...listingSuggestions,
-  ];
-
-  return order
-    .map((s, i) => ({ s, i }))
-    .sort((a, b) => rank(a.s) - rank(b.s) || a.i - b.i)
-    .map(({ s }) => s)
-    .slice(0, MAX_RESULTS);
+  return [...provinceResults, ...placeResults, ...listingResults]
+    .map((r) => r.suggestion)
+    .slice(0, MAX_SUGGESTIONS);
 }
