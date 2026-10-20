@@ -1,6 +1,5 @@
 import type { Place } from "@/types/destination";
 
-
 export const DEMO_PLACES: Place[] = [
   { id: "barrio-escalante", name: "Barrio Escalante", province: "San José" },
   { id: "los-yoses", name: "Los Yoses", province: "San José" },
@@ -12,7 +11,11 @@ export const DEMO_PLACES: Place[] = [
   { id: "el-tejar", name: "El Tejar", province: "Cartago" },
   { id: "barrio-el-carmen", name: "Barrio El Carmen", province: "Puntarenas" },
   { id: "barrio-el-cocal", name: "Barrio El Cocal", province: "Puntarenas" },
-  { id: "tamarindo", name: "Tamarindo", province: "Guanacaste", aliases: ["playa tamarindo"] },
+  {
+    id: "tamarindo",
+    name: "Tamarindo",
+    province: "Guanacaste",
+    aliases: ["playa tamarindo"],
+  },
   { id: "barrio-roosevelt", name: "Barrio Roosevelt", province: "Limón" },
 ];
-

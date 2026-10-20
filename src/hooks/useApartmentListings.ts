@@ -1,4 +1,4 @@
-import { APYRTMENT_LISTINGS } from "@/lib/mockData/apartmentListings";
+import { APARTMENT_LISTINGS } from "@/lib/mockData/apartmentListings";
 import type { ApartmentListing } from "@/types/hotel";
 
 /**

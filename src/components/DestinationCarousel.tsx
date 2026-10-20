@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { useApartmentListings } from "@/hooks/useApartmentListings";
 import { DEMO_PLACES } from "@/lib/mockData/places";
 import type { ApartmentListing } from "@/types/hotel";
 
@@ -21,9 +19,7 @@ interface Destination {
  * disagree about where there is something to book, and so a destination
  * disappears on its own when its last listing goes.
  */
-function destinationsFromListings(
-  listings: ApartmentListing[],
-): Destination[] {
+function destinationsFromListings(listings: ApartmentListing[]): Destination[] {
   const counts = new Map<string, number>();
   for (const listing of listings) {
     counts.set(listing.location, (counts.get(listing.location) ?? 0) + 1);
@@ -53,8 +49,7 @@ function provinceHref(location: string): string {
  * listings, each linking into the public browsing page.
  */
 export default function DestinationCarousel() {
-  const listings = useApartmentListings();
-  const destinations = destinationsFromListings(listings);
+  const destinations = destinationsFromListings(DEMO_PLACES);
 
   if (destinations.length === 0) return null;
 
@@ -67,7 +62,7 @@ export default function DestinationCarousel() {
         className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
         aria-label="Destinations with listings"
       >
-        {destinations.map(({ location, listings }) => (
+        {destinations.map(({ location, listings: count }) => (
           <li key={location} className="w-56 shrink-0 snap-start">
             <Link
               href={provinceHref(location)}
@@ -77,7 +72,7 @@ export default function DestinationCarousel() {
                 <CardContent className="p-5">
                   <p className="text-lg font-semibold">{location}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {listings} {listings === 1 ? "stay" : "stays"}
+                    {count} {count === 1 ? "stay" : "stays"}
                   </p>
                 </CardContent>
               </Card>

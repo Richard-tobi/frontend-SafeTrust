@@ -1,6 +1,5 @@
 import type { ApartmentListing } from "@/types/hotel";
-import type { Location } from "@/types/destination";
-import type { Place } from "@/types/destination";
+import type { Location, Place } from "@/types/destination";
 import { DEMO_PLACES } from "@/lib/mockData/places";
 import { normalizeSearchText } from "@/lib/text";
 
@@ -44,16 +43,24 @@ function countForPlace(place: Place, listings: ApartmentListing[]): number {
   return listings.filter((l) => l.placeId === place.id).length;
 }
 
+type RankedSuggestion = { rank: number; suggestion: WhereSuggestion };
+
+function sortRanked(results: RankedSuggestion[]): RankedSuggestion[] {
+  return results.sort((a, b) => {
+    if (a.rank !== b.rank) return a.rank - b.rank;
+    const aCount = "count" in a.suggestion ? a.suggestion.count : 0;
+    const bCount = "count" in b.suggestion ? b.suggestion.count : 0;
+    return bCount - aCount;
+  });
+}
+
 export function whereSuggestions(
   text: string,
   listings: ApartmentListing[],
 ): WhereSuggestion[] {
   const needle = normalizeSearchText(text);
 
-  const provinceResults: Array<{
-    rank: number;
-    suggestion: WhereSuggestion;
-  }> = [];
+  const provinceResults: RankedSuggestion[] = [];
   for (const location of PROVINCES) {
     const rank = matchRank(needle, [location]);
     if (rank === null) continue;
@@ -64,12 +71,9 @@ export function whereSuggestions(
       suggestion: { kind: "province", location, label: location, count },
     });
   }
-  provinceResults.sort((a, b) => a.rank - b.rank);
+  sortRanked(provinceResults);
 
-  const placeResults: Array<{
-    rank: number;
-    suggestion: WhereSuggestion;
-  }> = [];
+  const placeResults: RankedSuggestion[] = [];
   for (const place of DEMO_PLACES) {
     const rank = matchRank(needle, [place.name, ...(place.aliases ?? [])]);
     if (rank === null) continue;
@@ -80,12 +84,9 @@ export function whereSuggestions(
       suggestion: { kind: "place", place, label: place.name, count },
     });
   }
-  placeResults.sort((a, b) => a.rank - b.rank);
+  sortRanked(placeResults);
 
-  const listingResults: Array<{
-    rank: number;
-    suggestion: WhereSuggestion;
-  }> = [];
+  const listingResults: RankedSuggestion[] = [];
   for (const listing of listings) {
     const rank = matchRank(needle, [listing.name]);
     if (rank === null) continue;
@@ -94,7 +95,7 @@ export function whereSuggestions(
       suggestion: { kind: "listing", id: listing.id, label: listing.name },
     });
   }
-  listingResults.sort((a, b) => a.rank - b.rank);
+  sortRanked(listingResults);
 
   return [...provinceResults, ...placeResults, ...listingResults]
     .map((r) => r.suggestion)
