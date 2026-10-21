@@ -264,9 +264,16 @@ function RentPageContent() {
         return next < 0 ? whereResults.length - 1 : next;
       });
     } else if (event.key === "Enter") {
+      event.preventDefault();
       if (activeWhere >= 0) {
-        event.preventDefault();
         applyWhereChoice(whereResults[activeWhere]);
+      } else {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("q", whereText.trim());
+        params.delete("place");
+        router.replace(`/rent?${params.toString()}`, { scroll: false });
+        setWhereText("");
+        setWhereActive(-1);
       }
     } else if (event.key === "Escape") {
       event.preventDefault();
