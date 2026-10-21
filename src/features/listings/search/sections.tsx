@@ -198,7 +198,7 @@ export function WhereSection({
                     <span>{suggestion.label}</span>
                     {suggestion.kind !== "listing" && (
                       <span className="text-muted-foreground">
-                        {suggestion.count} places
+                        {suggestion.count} {suggestion.count === 1 ? "stay" : "stays"}
                       </span>
                     )}
                   </span>

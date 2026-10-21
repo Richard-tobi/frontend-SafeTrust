@@ -7,10 +7,10 @@
     "node": ">=20.18 <23"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "node api.js && next dev",
     "dev:turbo": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
+    "build": "node api.js && next build",
+    "start": "node api.js && next start",
     "lint": "eslint . --cache --max-warnings=0",
     "lint:fix": "eslint . --cache --fix",
     "typecheck": "tsc --noEmit",
