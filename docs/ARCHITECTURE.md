@@ -4,6 +4,21 @@ This document defines the architectural layers, boundaries, and import contracts
 
 ---
 
+## Test and Mock Conventions
+
+- Keep unit and integration tests co-located with their subjects as
+  `*.test.ts` or `*.test.tsx` files under `src/`; do not add `__tests__`
+  directories.
+- Reserve the root `__mocks__/` directory for Jest manual package mocks. Keep
+  demo data and fixtures with their features, and shared test helpers in
+  `src/test/`.
+- Use `renderWithProviders` from `src/test/render.tsx` when tests need the
+  React Query and theme providers or seeded authentication state.
+- Keep browser end-to-end tests in `e2e/` as Playwright specs, fixtures, and
+  support files.
+
+---
+
 ## 1. Directory Structure & Layer Map
 
 ```text
@@ -32,14 +47,14 @@ src/
 
 ## 2. Permitted vs Forbidden Import Table
 
-| Layer | May import | Must NOT import |
-|---|---|---|
-| `app/` | Everything except another route's private files | — |
-| `features/<x>` | `components/ui`, `components/layout`, `lib`, `config/env`, `types`, **other features only via their `index.ts`** | `app/`, `server/`, another feature's internal modules (`@/features/*/*`) |
-| `components/ui` | `lib/utils` only | `features`, `hooks`, `providers`, `data`, `server/` |
-| `components/layout` | `components/ui`, `lib`, `features/*/index.ts` (auth state only) | `server/`, demo data |
-| `server/` | `config/env.server`, `lib` | Anything client (`"use client"` modules, React) |
-| `lib/` | `config`, `types` | `features`, `components`, `server/` |
+| Layer               | May import                                                                                                       | Must NOT import                                                          |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `app/`              | Everything except another route's private files                                                                  | —                                                                        |
+| `features/<x>`      | `components/ui`, `components/layout`, `lib`, `config/env`, `types`, **other features only via their `index.ts`** | `app/`, `server/`, another feature's internal modules (`@/features/*/*`) |
+| `components/ui`     | `lib/utils` only                                                                                                 | `features`, `hooks`, `providers`, `data`, `server/`                      |
+| `components/layout` | `components/ui`, `lib`, `features/*/index.ts` (auth state only)                                                  | `server/`, demo data                                                     |
+| `server/`           | `config/env.server`, `lib`                                                                                       | Anything client (`"use client"` modules, React)                          |
+| `lib/`              | `config`, `types`                                                                                                | `features`, `components`, `server/`                                      |
 
 ---
 
@@ -62,3 +77,21 @@ ESLint rules in `eslint.config.mjs` enforce these layer boundaries automatically
 - **Feature encapsulation (`src/features/**/*.{ts,tsx}`)**: Banned from deep imports into other features (`@/features/*/*`) and cannot reach `@/server/*` or `@/app/*`.
 - **Shared library purity (`src/lib/**/*.{ts,tsx}`)**: Banned from depending on `@/features/*`, `@/components/*`, or `@/server/*`.
 - **Module escape prevention**: Relative imports escaping module boundaries (`../../../*`) are banned across `src/**/*.{ts,tsx}` in favor of the clean `@/` path alias.
+
+---
+
+## 5. Route Groups & Runtime Profiles (FE-54)
+
+Route groups segment the application by runtime profile, ensuring providers and heavy dependencies (such as `@creit.tech/stellar-wallets-kit` and `@trustless-work/escrow`) are mounted once per group layout rather than per page or globally at root.
+
+### Group Profiles & Mounted Providers
+
+| Group         | Routes                                                                                        | Providers Mounted                                                             | Target First-Load JS |
+| ------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | -------------------- |
+| `(marketing)` | `/`, `/rent`, `/rent/[id]`, `/hotels`, `/hotels/[id]`, `/hotels/search`, `/guest/suggestions` | `QueryProvider` only (RSC-first; no auth listener, no wallet kit)             | ≤ 180 kB             |
+| `(auth)`      | `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`                 | `AuthProvider` (centered auth shell; wallet login loads kit lazily on click)  | ≤ 200 kB             |
+| `(app)`       | `/dashboard/**`                                                                               | `AuthProvider` + `QueryProvider` + sidebar shell                              | ≤ 260 kB             |
+| `(checkout)`  | `/rent/[id]/escrow/**`, `/hotels/[id]/book`, `/room`, `/bookings/**`                          | `AuthProvider` + `QueryProvider` + `WalletProviderScoped` + `EscrowProviders` | ≤ 350 kB             |
+
+- **Root `src/app/layout.tsx`**: Thin shell containing HTML, body fonts, `globals.css`, `ThemeProvider`, `DemoBanner`, and `Toaster`. Contains **no** data, auth, or wallet providers.
+- **Provider Rule**: Pages never mount providers (`grep -rn "Provider" src/app --include=page.tsx` must return 0 mounts). All providers are composed at the route group layout level.

@@ -19,11 +19,22 @@
     "test:e2e": "playwright test",
     "e2e:test": "npm run test:e2e --",
     "test:e2e:ui": "playwright test --ui",
+    "lint-staged": "lint-staged",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "knip": "knip",
-    "check": "npm run lint && npm run typecheck && npm run test:ci && npm run knip && npm run build",
+    "size:check": "node scripts/check-bundle-budgets.js",
+    "check": "npm run lint && npm run typecheck && npm run test:ci && npm run knip && npm run build && npm run size:check",
     "prepare": "husky"
+  },
+  "knip": {
+    "entry": [
+      "src/app/**/*.{ts,tsx}",
+      "src/test/**/*.{ts,tsx}"
+    ],
+    "project": [
+      "src/**/*.{ts,tsx}"
+    ]
   },
   "lint-staged": {
     "*.{ts,tsx}": [

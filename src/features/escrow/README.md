@@ -59,5 +59,6 @@ the flow before any wallet prompt.
 ## Tests
 
 `npx jest src/features/escrow src/components/tw-blocks`. The integration tests
-run the real `useEscrowsMutations` against fakes in `testing/escrow-harness.tsx`
-(Trustless Work SDK hooks, wallet-kit signer, an in-memory chain).
+run the real `useEscrowsMutations` against fakes in
+`src/test/harness/escrow.tsx` (Trustless Work SDK hooks, wallet-kit signer, an
+in-memory chain).

@@ -59,7 +59,7 @@ export default function DestinationCarousel() {
         Popular destinations
       </h2>
       <ul
-        className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
+        className="scrollbar-soft flex snap-x snap-mandatory scroll-px-2 gap-4 overflow-x-auto px-2 pb-3"
         aria-label="Destinations with listings"
       >
         {destinations.map(({ location, listings: count }) => (
