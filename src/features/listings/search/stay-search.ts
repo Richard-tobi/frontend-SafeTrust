@@ -143,7 +143,8 @@ export function writeStaySearch(
   query: URLSearchParams,
 ): URLSearchParams {
   for (const key of STAY_SEARCH_KEYS) query.delete(key);
-  if (search.q) query.set("q", search.q);
+  const q = search.q.replace(/\s+/g, " ").trim().slice(0, Q_MAX_LENGTH);
+  if (q) query.set("q", q);
   if (search.place) query.set("place", search.place);
   for (const key of ["adults", "children", "infants", "pets"] as const) {
     if (search.guests[key] > 0) query.set(key, String(search.guests[key]));

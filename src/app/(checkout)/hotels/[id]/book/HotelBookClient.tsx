@@ -1,6 +1,6 @@
 "use client";
 
-import { addDays, format } from "date-fns";
+import { addDays, format, parseISO } from "date-fns";
 import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import type { ApartmentListing } from "@/types/hotel";
@@ -8,6 +8,8 @@ import HotelDetails from "@/components/hotels/payment/HotelDetails";
 import ReservationSummary from "@/components/hotels/payment/ReservationSummary";
 import type { BookingDetails } from "@/features/escrow/booking-escrow.machine";
 import { computeBookingPrice } from "@/features/escrow/pricing";
+import { parseHotelSearch } from "@/features/hotels";
+import { nightsBetween } from "@/features/listings";
 import { PageContainer } from "@/components/layouts/PageContainer";
 
 const MOCK_NIGHTS = 2;
@@ -15,21 +17,26 @@ const MOCK_NIGHTS = 2;
 function BookContent({ hotel }: { hotel: ApartmentListing }) {
   const searchParams = useSearchParams();
   const bookingId = searchParams.get("bookingId") ?? "";
+  const { from, to } = parseHotelSearch(
+    new URLSearchParams(searchParams.toString()),
+  );
   const booking = useMemo<BookingDetails>(() => {
-    const checkIn = addDays(new Date(), 7);
+    const checkInDate = from ? parseISO(from) : addDays(new Date(), 7);
+    const checkOutDate = to ? parseISO(to) : addDays(checkInDate, MOCK_NIGHTS);
+    const nights = from && to ? nightsBetween(from, to) : MOCK_NIGHTS;
     return {
       listingId: hotel.id,
       listingName: hotel.name,
       hostAddress: hotel.owner.walletAddress?.trim() ?? "",
-      checkIn: format(checkIn, "yyyy-MM-dd"),
-      checkOut: format(addDays(checkIn, MOCK_NIGHTS), "yyyy-MM-dd"),
+      checkIn: format(checkInDate, "yyyy-MM-dd"),
+      checkOut: format(checkOutDate, "yyyy-MM-dd"),
       price: computeBookingPrice({
         nightlyRate: hotel.price,
-        nights: MOCK_NIGHTS,
+        nights,
         guests: 1,
       }),
     };
-  }, [hotel]);
+  }, [hotel, from, to]);
   const hotelData = {
     hotelName: hotel.name,
     description: hotel.description,

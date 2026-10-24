@@ -5,6 +5,7 @@ import {
   isIsoMonth,
   localToday,
   nightsBetween,
+  toIsoDate,
 } from "./date-only";
 
 // Every helper must be timezone-independent: run this suite with
@@ -99,6 +100,13 @@ describe("date-only", () => {
       ["2026-01", -1, "2025-12"],
     ])("addMonths(%s, %i) === %s", (month, count, expected) => {
       expect(addMonths(month, count)).toBe(expected);
+    });
+  });
+
+  describe("toIsoDate", () => {
+    it("formats the local calendar day with zero padding", () => {
+      expect(toIsoDate(new Date(2026, 0, 5, 23, 30))).toBe("2026-01-05");
+      expect(toIsoDate(new Date(2026, 11, 31, 0, 5))).toBe("2026-12-31");
     });
   });
 

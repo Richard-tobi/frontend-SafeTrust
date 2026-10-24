@@ -45,6 +45,7 @@ import {
 } from "@/components/listings/filters/useRentFilters";
 import Link from "next/link";
 import { RentMotion, RentReveal } from "@/components/listings/RentMotion";
+import { normalizeSearchText } from "@/lib/searchText";
 
 const ApartmentGrid = dynamic(
   () => import("@/components/listings/ApartmentGrid"),
@@ -179,13 +180,22 @@ function RentPageContent() {
       }
       return;
     }
+    if (!geo.autoSortOnPosition && filters.sort !== "nearest") return;
+
     setSortFallback(false);
     if (previousAutoSortPosition.current === geo.position) return;
 
     previousAutoSortPosition.current = geo.position;
     const sort = isOutsideCostaRica ? "relevance" : "nearest";
     if (filters.sort !== sort) setFilters({ sort });
-  }, [filters.sort, geo.position, geo.status, isOutsideCostaRica, setFilters]);
+  }, [
+    filters.sort,
+    geo.autoSortOnPosition,
+    geo.position,
+    geo.status,
+    isOutsideCostaRica,
+    setFilters,
+  ]);
 
   const distances = useMemo(
     () =>

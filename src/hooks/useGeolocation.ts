@@ -5,7 +5,6 @@ import { useEffect, useSyncExternalStore } from "react";
 
 export type GeoStatus =
   "idle" | "prompting" | "granted" | "denied" | "unavailable" | "error";
-
 export interface GeolocationRequestOptions {
   autoSort?: boolean;
 }

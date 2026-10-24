@@ -19,6 +19,5 @@ export type {
   ApartmentAmenitySummary,
   ApartmentListing,
   ApartmentOwner,
-  HotelSearchResult,
 } from "@/types/hotel";
 export type * from "@/types/hotel-booking";

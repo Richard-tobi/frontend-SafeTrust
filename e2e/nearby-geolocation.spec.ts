@@ -17,7 +17,9 @@ test("Nearby location survives navigation from suggestions to rentals", async ({
     };
   });
 
-  await page.goto("/guest/suggestions");
+  await page.goto(
+    "/guest/suggestions?categories=Family&bedrooms=2&min=50&max=200",
+  );
   const where = page.getByRole("button", {
     name: "City, province or neighborhood",
   });
@@ -47,7 +49,9 @@ test("Nearby location survives navigation from suggestions to rentals", async ({
     .toBe(1);
 
   await page.getByRole("button", { name: "Search", exact: true }).click();
-  await expect(page).toHaveURL(/\/rent\?sort=nearest$/);
+  await expect(page).toHaveURL(
+    "/rent?categories=Family&bedrooms=2&min=50&max=200&sort=nearest",
+  );
   await expect(
     page.getByText(
       "Sorted by relevance: share your location again to sort by distance.",

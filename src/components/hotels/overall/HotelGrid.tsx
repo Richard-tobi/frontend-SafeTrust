@@ -1,40 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import type { HotelSearchResult } from "@/types/hotel";
-import { HOTEL_SEARCH_RESULTS } from "@/lib/mockData/hotelSearch";
+import type { ApartmentListing } from "@/types/hotel";
 import HotelCard from "./HotelCard";
 
-export default function HotelGrid() {
-  const [hotels, setHotels] =
-    useState<HotelSearchResult[]>(HOTEL_SEARCH_RESULTS);
+interface HotelGridProps {
+  hotels: ApartmentListing[];
+  from?: string | null;
+  to?: string | null;
+}
 
-  const toggleFavorite = (id: number) => {
-    setHotels((currentHotels) =>
-      currentHotels.map((hotel) =>
-        hotel.id === id ? { ...hotel, isFavorite: !hotel.isFavorite } : hotel,
-      ),
-    );
+export default function HotelGrid({ hotels, from, to }: HotelGridProps) {
+  const [saved, setSaved] = useState<Set<string>>(() => new Set());
+
+  const toggleSaved = (id: string) => {
+    setSaved((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   return (
-    <>
-      <div className="flex justify-end mb-4">
-        <Button variant="link" className="text-blue-500">
-          View all
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {hotels.map((hotel) => (
-          <HotelCard
-            key={hotel.id}
-            hotel={hotel}
-            onToggleFavorite={toggleFavorite}
-          />
-        ))}
-      </div>
-    </>
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {hotels.map((hotel) => (
+        <HotelCard
+          key={hotel.id}
+          hotel={hotel}
+          from={from}
+          to={to}
+          saved={saved.has(hotel.id)}
+          onToggleSaved={toggleSaved}
+        />
+      ))}
+    </div>
   );
 }

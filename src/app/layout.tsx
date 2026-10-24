@@ -6,12 +6,13 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 import { DemoBanner } from "../components/layouts/DemoBanner";
+import { clientEnv } from "@/config/env";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    clientEnv.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   ),
   title: {
     default: "SafeTrust: stays protected by escrow",

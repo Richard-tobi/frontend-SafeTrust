@@ -36,9 +36,7 @@ export function useSharedGeolocation() {
 export function useRequiredSharedGeolocation(): Geo {
   const geo = useSharedGeolocation();
   if (!geo) {
-    throw new Error(
-      "This page must be rendered inside GeolocationProvider.",
-    );
+    throw new Error("This page must be rendered inside GeolocationProvider.");
   }
   return geo;
 }

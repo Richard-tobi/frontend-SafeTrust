@@ -13,6 +13,12 @@ jest.mock("next/image", () => ({
   ),
 }));
 
+jest.mock("next/navigation", () => ({
+  usePathname: () => "/rent",
+  useRouter: () => ({ push: jest.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 jest.mock("@/components/ui/ThemeToggle", () => ({
   ThemeToggle: () => <button type="button">Theme</button>,
 }));
@@ -66,21 +72,24 @@ describe("HotelHeader lucide icons", () => {
     "header-user-icon",
   ] as const;
 
-  it("renders the header icons as lucide SVGs", () => {
+  it("renders the header icons as lucide SVGs", async () => {
     render(<HotelHeader />);
 
     for (const testId of lucideIconTestIds) {
-      const icon = screen.getByTestId(testId);
+      const icon = await screen.findByTestId(testId);
       expect(icon.tagName).toBe("svg");
       expect(icon.getAttribute("class")).toContain("lucide");
     }
   });
 
-  it("marks every header icon as decorative with aria-hidden", () => {
+  it("marks every header icon as decorative with aria-hidden", async () => {
     render(<HotelHeader />);
 
     for (const testId of lucideIconTestIds) {
-      expect(screen.getByTestId(testId)).toHaveAttribute("aria-hidden", "true");
+      expect(await screen.findByTestId(testId)).toHaveAttribute(
+        "aria-hidden",
+        "true",
+      );
     }
   });
 
