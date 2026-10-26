@@ -7,6 +7,7 @@ export default {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -50,6 +51,15 @@ export default {
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
+        },
+        nav: {
+          active: "hsl(var(--nav-active))",
+          "active-foreground": "hsl(var(--nav-active-foreground))",
+          "active-icon": "hsl(var(--nav-active-icon))",
+          indicator: "hsl(var(--nav-indicator))",
+          hover: "hsl(var(--nav-hover))",
+          "hover-foreground": "hsl(var(--nav-hover-foreground))",
+          ring: "hsl(var(--nav-ring))",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
