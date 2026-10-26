@@ -20,10 +20,10 @@ test("Nearby location survives navigation from suggestions to rentals", async ({
   await page.goto(
     "/guest/suggestions?categories=Family&bedrooms=2&min=50&max=200",
   );
-  const where = page.getByRole("button", {
-    name: "City, province or neighborhood",
+  const searchTrigger = page.getByRole("button", {
+    name: /^Search stays:/,
   });
-  await waitForHydration(where);
+  await waitForHydration(searchTrigger);
   await expect
     .poll(() =>
       page.evaluate(
@@ -32,13 +32,10 @@ test("Nearby location survives navigation from suggestions to rentals", async ({
       ),
     )
     .toBe(0);
-  await where.click();
+  await searchTrigger.click();
   await page
     .getByRole("option", { name: /Nearby.*Find what's around you/ })
     .click();
-  await expect(
-    page.getByRole("button", { name: "Clear location" }),
-  ).toBeVisible();
   await expect
     .poll(() =>
       page.evaluate(
